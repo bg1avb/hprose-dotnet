@@ -24,7 +24,12 @@ using System.Threading.Tasks;
 namespace Hprose.RPC {
     public class HttpTransport : ITransport, IDisposable {
         public static string[] Schemes { get; } = new string[] { "http", "https" };
-        private readonly HttpClient httpClient = new HttpClient();
+        HttpClientHandler handler = new HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback = (message, cer, chain, errors) =>
+            {
+                return chain.Build(cer);
+            }; 
+        private readonly HttpClient httpClient = new HttpClient(handler);
         public NameValueCollection HttpRequestHeaders { get; } = new NameValueCollection(StringComparer.InvariantCultureIgnoreCase);
         public HttpTransport() {
             httpClient.Timeout = new TimeSpan(0, 0, 0, 0, Timeout.Infinite);
